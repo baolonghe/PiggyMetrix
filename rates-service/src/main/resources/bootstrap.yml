@@ -7,3 +7,8 @@ spring:
       fail-fast: true
       password: ${CONFIG_SERVICE_PASSWORD}
       username: user
+rest:
+  ReadTimeout: 35000
+  timeout: 3500
+server:
+  port: 9003
