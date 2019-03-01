@@ -1,7 +1,7 @@
 package com.piggymetrics.notification;
 
-import com.piggymetrics.notification.repository.converter.FrequencyReaderConverter;
-import com.piggymetrics.notification.repository.converter.FrequencyWriterConverter;
+import java.util.Arrays;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -13,7 +13,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
 
-import java.util.Arrays;
+import com.piggymetrics.notification.repository.converter.FrequencyReaderConverter;
+import com.piggymetrics.notification.repository.converter.FrequencyWriterConverter;
 
 @SpringBootApplication
 @EnableDiscoveryClient
@@ -30,10 +31,9 @@ public class NotificationServiceApplication {
 	@Configuration
 	static class CustomConversionsConfig {
 
-		@Bean
+		@Bean // 配置mongodb类型转换器
 		public CustomConversions customConversions() {
-			return new CustomConversions(Arrays.asList(new FrequencyReaderConverter(),
-					new FrequencyWriterConverter()));
+			return new CustomConversions(Arrays.asList(new FrequencyReaderConverter(), new FrequencyWriterConverter()));
 		}
 	}
 }

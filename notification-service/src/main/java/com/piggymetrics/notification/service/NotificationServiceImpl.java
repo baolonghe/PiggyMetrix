@@ -1,16 +1,17 @@
 package com.piggymetrics.notification.service;
 
-import com.piggymetrics.notification.client.AccountServiceClient;
-import com.piggymetrics.notification.domain.NotificationType;
-import com.piggymetrics.notification.domain.Recipient;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import com.piggymetrics.notification.client.AccountServiceClient;
+import com.piggymetrics.notification.domain.NotificationType;
+import com.piggymetrics.notification.domain.Recipient;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
@@ -47,7 +48,7 @@ public class NotificationServiceImpl implements NotificationService {
 	}
 
 	@Override
-	@Scheduled(cron = "${remind.cron}")
+	@Scheduled(cron = "${remind.cron}") // 定时任务发送通知邮件
 	public void sendRemindNotifications() {
 
 		final NotificationType type = NotificationType.REMIND;

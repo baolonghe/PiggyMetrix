@@ -1,6 +1,5 @@
 package com.piggymetrics.auth.config;
 
-import com.piggymetrics.auth.service.security.MongoUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +14,8 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 
+import com.piggymetrics.auth.service.security.MongoUserDetailsService;
+
 /**
  * @author cdov
  */
@@ -22,61 +23,46 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 @EnableAuthorizationServer
 public class OAuth2AuthorizationConfig extends AuthorizationServerConfigurerAdapter {
 
-    private TokenStore tokenStore = new InMemoryTokenStore();
-    private final String NOOP_PASSWORD_ENCODE = "{noop}";
+	// 将令牌信息保存在内存中，易于调试
+	private TokenStore tokenStore = new InMemoryTokenStore();
+	private final String NOOP_PASSWORD_ENCODE = "{noop}";
 
-    @Autowired
-    @Qualifier("authenticationManagerBean")
-    private AuthenticationManager authenticationManager;
+	@Autowired
+	@Qualifier("authenticationManagerBean")
+	private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private MongoUserDetailsService userDetailsService;
+	@Autowired
+	private MongoUserDetailsService userDetailsService;
 
-    @Autowired
-    private Environment env;
+	@Autowired
+	private Environment env;
 
-    @Override
-    public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+	@Override
+	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 
-        // TODO persist clients details
+		// TODO persist clients details
 
-        // @formatter:off
-        clients.inMemory()
-                .withClient("browser")
-                .authorizedGrantTypes("refresh_token", "password")
-                .scopes("ui")
-                .and()
-                .withClient("account-service")
-                .secret(env.getProperty("ACCOUNT_SERVICE_PASSWORD"))
-                .authorizedGrantTypes("client_credentials", "refresh_token")
-                .scopes("server")
-                .and()
-                .withClient("statistics-service")
-                .secret(env.getProperty("STATISTICS_SERVICE_PASSWORD"))
-                .authorizedGrantTypes("client_credentials", "refresh_token")
-                .scopes("server")
-                .and()
-                .withClient("notification-service")
-                .secret(env.getProperty("NOTIFICATION_SERVICE_PASSWORD"))
-                .authorizedGrantTypes("client_credentials", "refresh_token")
-                .scopes("server");
-        // @formatter:on
-    }
+		// @formatter:off
+		clients.inMemory().withClient("browser").authorizedGrantTypes("refresh_token", "password").scopes("ui").and()
+				.withClient("account-service").secret(env.getProperty("ACCOUNT_SERVICE_PASSWORD"))
+				.authorizedGrantTypes("client_credentials", "refresh_token").scopes("server").and()
+				.withClient("statistics-service").secret(env.getProperty("STATISTICS_SERVICE_PASSWORD"))
+				.authorizedGrantTypes("client_credentials", "refresh_token").scopes("server").and()
+				.withClient("notification-service").secret(env.getProperty("NOTIFICATION_SERVICE_PASSWORD"))
+				.authorizedGrantTypes("client_credentials", "refresh_token").scopes("server");
+		// @formatter:on
+	}
 
-    @Override
-    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-        endpoints
-                .tokenStore(tokenStore)
-                .authenticationManager(authenticationManager)
-                .userDetailsService(userDetailsService);
-    }
+	@Override // 设置endpoint 对token的服务
+	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+		endpoints.tokenStore(tokenStore).authenticationManager(authenticationManager)
+				.userDetailsService(userDetailsService);// 生成或刷新时要用到
+	}
 
-    @Override
-    public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
-        oauthServer
-                .tokenKeyAccess("permitAll()")
-                .checkTokenAccess("isAuthenticated()")
-                .passwordEncoder(NoOpPasswordEncoder.getInstance());
-    }
+	@Override
+	public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
+		oauthServer.tokenKeyAccess("permitAll()").checkTokenAccess("isAuthenticated()")
+				.passwordEncoder(NoOpPasswordEncoder.getInstance());
+	}
 
 }
